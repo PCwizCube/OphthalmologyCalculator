@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
 <title>Glasses to Contacts Conversion Calculator</title>
 <style>
   :root {
@@ -251,7 +250,7 @@
     <h1>Glasses to Contacts Conversion Calculator</h1>
     <p class="sub">Enter your glasses prescription. The contacts prescription updates as you type.</p>
     <p class="formula-note">Assumes a contact lens with parameters, Sphere ranges from -12.00 to +8.00 (with 0.50 increments after -6.00 and +6.00), Cylinder includes -0.75D, -1.25D, -1.75D, -2.25D, -2.75D, and Axis ranges in 10 degree increments from 0 to 180</p>
-    <p class="formula-note"><em>Predicted Contacts SE 1</em> is based on the calculation using 12mm vertex distance, \(\text{Contact-lens power} = \frac{\text{Glasses power}}{1 - (0.012 \times \text{Glasses power})}\)</p>
+    <p class="formula-note"><em>Predicted Contacts SE 1</em> is based on the calculation using 12mm vertex distance, Contact Lens Power = [Glasses Power] / [ 1 - (0.012 * Glasses Power) ]</p>
 
     <div class="eye-group">
       <div class="tab-bar" role="tablist" aria-label="Eye selection">
