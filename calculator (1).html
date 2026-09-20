@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<title>Glasses to Contacts Conversion Calculator</title>
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --panel: #ffffff;
+    --ink: #1f2320;
+    --muted: #6b7268;
+    --line: #dfe3de;
+    --accent: #3d5a4c;
+    --accent-soft: #e7ede9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161a;
+      --panel: #1c1f24;
+      --ink: #eceeec;
+      --muted: #9aa39c;
+      --line: #303530;
+      --accent: #7fbfa2;
+      --accent-soft: #223028;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a;
+    --panel: #1c1f24;
+    --ink: #eceeec;
+    --muted: #9aa39c;
+    --line: #303530;
+    --accent: #7fbfa2;
+    --accent-soft: #223028;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 920px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 36px 32px 32px;
+  }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  p.sub {
+    margin: 0 0 10px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  p.formula-note {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .rules {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 26px;
+    line-height: 1.7;
+  }
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .inputs-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 0;
+  }
+
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 10px 10px;
+    font-size: 1.05rem;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  input[type="number"]:focus, input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  .section {
+    margin-bottom: 24px;
+  }
+
+  .section:last-child {
+    margin-bottom: 0;
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .eye-group {
+    margin-bottom: 28px;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--line);
+  }
+
+  .tab-button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tab-button:hover {
+    color: var(--ink);
+  }
+
+  .tab-button.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  h3 {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .results {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .result {
+    text-align: center;
+    padding: 14px 8px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+  }
+
+  .result .k {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .result .v {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note {
+    margin-top: 18px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .inputs-row { grid-template-columns: repeat(3, 1fr); }
+    .results { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 620px) {
+    input[type="number"], input[type="text"] { font-size: 0.95rem; padding: 9px 8px; }
+    .result .v { font-size: 1.1rem; }
+  }
+
+  @media (max-width: 360px) {
+    .inputs-row { grid-template-columns: 1fr 1fr; }
+    .results { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Glasses to Contacts Conversion Calculator</h1>
+    <p class="sub">Enter your glasses prescription. The contacts prescription updates as you type.</p>
+    <p class="formula-note">Assumes a contact lens with parameters, Sphere ranges from -12.00 to +8.00 (with 0.50 increments after -6.00 and +6.00), Cylinder includes -0.75D, -1.25D, -1.75D, -2.25D, -2.75D, and Axis ranges in 10 degree increments from 0 to 180</p>
+    <p class="formula-note"><em>Predicted Contacts SE 1</em> is based on the calculation using 12mm vertex distance, \(\text{Contact-lens power} = \frac{\text{Glasses power}}{1 - (0.012 \times \text{Glasses power})}\)</p>
+
+    <div class="eye-group">
+      <div class="tab-bar" role="tablist" aria-label="Eye selection">
+        <button type="button" class="tab-button active" role="tab" aria-selected="true" aria-controls="panel-od" id="tab-od" data-tab="od">OD</button>
+        <button type="button" class="tab-button" role="tab" aria-selected="false" aria-controls="panel-os" id="tab-os" data-tab="os">OS</button>
+      </div>
+
+      <div class="tab-panel active" role="tabpanel" id="panel-od" aria-labelledby="tab-od">
+      <div class="section">
+        <h3>Glasses Prescription OD</h3>
+        <div class="inputs-row">
+          <div class="field">
+            <label for="a">Sphere 1</label>
+            <input type="number" id="a" step="any" value="0.00">
+          </div>
+          <div class="field">
+            <label for="b">Cylinder 1</label>
+            <input type="text" id="b" inputmode="decimal" value="+0.00">
+          </div>
+          <div class="field">
+            <label for="c">Axis 1</label>
+            <input type="text" id="c" inputmode="numeric" value="090">
+          </div>
+          <div class="field">
+            <label for="se">Glasses SE 1</label>
+            <input type="number" id="se" step="any" value="0" readonly>
+          </div>
+          <div class="field">
+            <label for="cse">Predicted Contacts SE 1</label>
+            <input type="number" id="cse" step="any" value="0" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 1 - Convert to Negative Cylinder OD</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 2</div>
+            <div class="v" id="d">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 2</div>
+            <div class="v" id="e">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 2</div>
+            <div class="v" id="f">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 2</div>
+            <div class="v" id="se2">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 2 - Adjust Cylinder so Compatible with Contact Rx OD</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 3</div>
+            <div class="v" id="sp3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 3</div>
+            <div class="v" id="cy3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 3</div>
+            <div class="v" id="ax3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 3</div>
+            <div class="v" id="se3">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 3 - Adjust Sphere so that SE is Close to Predicted Contacts SE OD</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 4</div>
+            <div class="v" id="d3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 4</div>
+            <div class="v" id="e3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 4</div>
+            <div class="v" id="f3">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 4</div>
+            <div class="v" id="acse">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 4 - Adjust Sphere if Beyond -6.50 or +6.50 to 0.50 Increments OD</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 5</div>
+            <div class="v" id="sp5">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 5</div>
+            <div class="v" id="cy5">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 5</div>
+            <div class="v" id="ax5">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 5</div>
+            <div class="v" id="se5">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Final Contacts Prescription OD</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 6</div>
+            <div class="v" id="d4">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 6</div>
+            <div class="v" id="e4">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 6</div>
+            <div class="v" id="f4">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Final Contacts SE</div>
+            <div class="v" id="fcse4">0</div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" id="panel-os" aria-labelledby="tab-os">
+      <div class="section">
+        <h3>Glasses Prescription OS</h3>
+        <div class="inputs-row">
+          <div class="field">
+            <label for="aOs">Sphere 1</label>
+            <input type="number" id="aOs" step="any" value="0.00">
+          </div>
+          <div class="field">
+            <label for="bOs">Cylinder 1</label>
+            <input type="text" id="bOs" inputmode="decimal" value="+0.00">
+          </div>
+          <div class="field">
+            <label for="cOs">Axis 1</label>
+            <input type="text" id="cOs" inputmode="numeric" value="090">
+          </div>
+          <div class="field">
+            <label for="seOs">Glasses SE 1</label>
+            <input type="number" id="seOs" step="any" value="0" readonly>
+          </div>
+          <div class="field">
+            <label for="cseOs">Predicted Contacts SE 1</label>
+            <input type="number" id="cseOs" step="any" value="0" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 1 - Convert to Negative Cylinder OS</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 2</div>
+            <div class="v" id="dOs">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 2</div>
+            <div class="v" id="eOs">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 2</div>
+            <div class="v" id="fOs">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 2</div>
+            <div class="v" id="se2Os">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 2 - Adjust Cylinder so Compatible with Contact Rx OS</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 3</div>
+            <div class="v" id="sp3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 3</div>
+            <div class="v" id="cy3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 3</div>
+            <div class="v" id="ax3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 3</div>
+            <div class="v" id="se3Os">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 3 - Adjust Sphere so that SE is Close to Predicted Contacts SE OS</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 4</div>
+            <div class="v" id="d3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 4</div>
+            <div class="v" id="e3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 4</div>
+            <div class="v" id="f3Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 4</div>
+            <div class="v" id="acseOs">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Step 4 - Adjust Sphere if Beyond -6.50 or +6.50 to 0.50 Increments OS</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 5</div>
+            <div class="v" id="sp5Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 5</div>
+            <div class="v" id="cy5Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 5</div>
+            <div class="v" id="ax5Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">SE 5</div>
+            <div class="v" id="se5Os">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Final Contacts Prescription OS</h3>
+        <div class="results">
+          <div class="result">
+            <div class="k">Sphere 6</div>
+            <div class="v" id="d4Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Cylinder 6</div>
+            <div class="v" id="e4Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Axis 6</div>
+            <div class="v" id="f4Os">0</div>
+          </div>
+          <div class="result">
+            <div class="k">Final Contacts SE</div>
+            <div class="v" id="fcse4Os">0</div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function fmt(n) {
+    if (!isFinite(n)) return '—';
+    return Number(n.toFixed(6)).toString();
+  }
+
+  function fmt2(n) {
+    if (!isFinite(n)) return '—';
+    return n.toFixed(2);
+  }
+
+  function fmt2Signed(n) {
+    if (!isFinite(n)) return '—';
+    return (n >= 0 ? '+' : '') + n.toFixed(2);
+  }
+
+  function fmt3(n) {
+    if (!isFinite(n)) return '—';
+    const rounded = Math.round(n);
+    const sign = rounded < 0 ? '-' : '';
+    return sign + Math.abs(rounded).toString().padStart(3, '0');
+  }
+
+  function fmtDec3(n) {
+    if (!isFinite(n)) return '—';
+    return n.toFixed(3);
+  }
+
+  const axisSteps = [0, 10, 20, 30, 70, 80, 90, 100, 110, 130, 150, 160, 170];
+
+  function nearestAxisStep(value) {
+    let closest = axisSteps[0];
+    let minDiff = Math.abs(value - closest);
+    for (const step of axisSteps) {
+      const diff = Math.abs(value - step);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = step;
+      }
+    }
+    return closest === 0 ? 180 : closest;
+  }
+
+  function getEyeElements(suffix) {
+    const id = (base) => base + suffix;
+    return {
+      aInput: document.getElementById(id('a')),
+      bInput: document.getElementById(id('b')),
+      cInput: document.getElementById(id('c')),
+      dOut: document.getElementById(id('d')),
+      eOut: document.getElementById(id('e')),
+      fOut: document.getElementById(id('f')),
+      se2Out: document.getElementById(id('se2')),
+      sp3Out: document.getElementById(id('sp3')),
+      cy3Out: document.getElementById(id('cy3')),
+      ax3Out: document.getElementById(id('ax3')),
+      se3Out: document.getElementById(id('se3')),
+      sp5Out: document.getElementById(id('sp5')),
+      cy5Out: document.getElementById(id('cy5')),
+      ax5Out: document.getElementById(id('ax5')),
+      se5Out: document.getElementById(id('se5')),
+      d3Out: document.getElementById(id('d3')),
+      e3Out: document.getElementById(id('e3')),
+      f3Out: document.getElementById(id('f3')),
+      acseOut: document.getElementById(id('acse')),
+      d4Out: document.getElementById(id('d4')),
+      e4Out: document.getElementById(id('e4')),
+      f4Out: document.getElementById(id('f4')),
+      fcse4Out: document.getElementById(id('fcse4')),
+      seOut: document.getElementById(id('se')),
+      cseOut: document.getElementById(id('cse'))
+    };
+  }
+
+  function adjustCylinder3(cyl) {
+    const eps = 0.001;
+    const isClose = (x, y) => Math.abs(x - y) < eps;
+    if (isClose(cyl, -0.50) || isClose(cyl, -0.25)) return 0;
+    if (isClose(cyl, -1.00)) return -0.75;
+    if (isClose(cyl, -1.50)) return -1.25;
+    if (isClose(cyl, -2.00)) return -1.75;
+    if (isClose(cyl, -2.50)) return -2.25;
+    if (cyl <= -3.00) return -2.75;
+    return cyl;
+  }
+
+  const sphere5Triggers = [
+    -6.25, -6.75, -7.25, -7.75, -8.25, -8.75, -9.25, -9.75,
+    -10.25, -10.75, -11.25, -11.75, 6.25, 6.75, 7.25
+  ];
+
+  function isSphere5Trigger(val) {
+    const eps = 0.001;
+    return sphere5Triggers.some((t) => Math.abs(val - t) < eps);
+  }
+
+  const axis6Steps = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170];
+
+  function computeAxis6(axisVal) {
+    if ((axisVal >= 175 && axisVal <= 180) || (axisVal >= 0 && axisVal <= 5)) {
+      return 180;
+    }
+    let closest = axis6Steps[0];
+    let minDiff = Math.abs(axisVal - closest);
+    for (const step of axis6Steps) {
+      const diff = Math.abs(axisVal - step);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = step;
+      }
+    }
+    return closest;
+  }
+
+  function calculateEye(els) {
+    const a = parseFloat(els.aInput.value) || 0;
+    const b = parseFloat(els.bInput.value) || 0;
+    const c = parseFloat(els.cInput.value) || 0;
+
+    let d, e, f;
+    if (b > 0) {
+      d = a + b;
+      e = -b;
+      f = (c <= 90) ? c + 90 : c - 90;
+    } else {
+      d = a;
+      e = b;
+      f = c;
+    }
+    const se = a + (b / 2);
+    const se2 = d + (e / 2);
+    const cse = se / (1 - (0.012 * se));
+    const cse2 = se2 / (1 - (0.012 * se2));
+
+    els.dOut.textContent = fmt2(d);
+    els.eOut.textContent = fmt2(e);
+    els.fOut.textContent = fmt3(f);
+    els.seOut.value = fmtDec3(se);
+    els.se2Out.textContent = fmtDec3(se2);
+    els.cseOut.value = fmtDec3(cse);
+    const sphere3Value = d;
+    els.sp3Out.textContent = fmt2(sphere3Value);
+    const adjustedCyl3 = adjustCylinder3(e);
+    els.cy3Out.textContent = fmt2(adjustedCyl3);
+    els.ax3Out.textContent = fmt3(f);
+    els.se3Out.textContent = fmtDec3(sphere3Value + (adjustedCyl3 / 2));
+
+    const cyl3 = adjustedCyl3;
+    function seFor(sphereVal) {
+      return sphereVal + (cyl3 / 2);
+    }
+    const target4 = cse - (cyl3 / 2);
+    const steps4 = Math.round((target4 - sphere3Value) / 0.25);
+    const sphere4 = sphere3Value + (steps4 * 0.25);
+
+    els.d3Out.textContent = fmt2(sphere4);
+    els.e3Out.textContent = fmt2(adjustedCyl3);
+    els.f3Out.textContent = fmt3(f);
+    els.acseOut.textContent = fmtDec3(seFor(sphere4));
+    let sphere5 = sphere4;
+    if (isSphere5Trigger(sphere4)) {
+      const plus5 = sphere4 + 0.25;
+      const minus5 = sphere4 - 0.25;
+      const sePlus5 = plus5 + (adjustedCyl3 / 2);
+      const seMinus5 = minus5 + (adjustedCyl3 / 2);
+      sphere5 = (Math.abs(sePlus5 - cse) <= Math.abs(seMinus5 - cse)) ? plus5 : minus5;
+    }
+
+    els.sp5Out.textContent = fmt2(sphere5);
+    els.cy5Out.textContent = fmt2(adjustedCyl3);
+    els.ax5Out.textContent = fmt3(f);
+    els.se5Out.textContent = fmtDec3(sphere5 + (adjustedCyl3 / 2));
+    els.d4Out.textContent = fmt2(sphere5);
+    els.e4Out.textContent = fmt2(cyl3);
+    els.f4Out.textContent = (Math.abs(cyl3) < 0.001) ? 'N/A' : fmt3(computeAxis6(f));
+    els.fcse4Out.textContent = fmtDec3(sphere5 + (cyl3 / 2));
+  }
+
+  function formatToTwoDecimals(el) {
+    const v = parseFloat(el.value) || 0;
+    el.value = fmt2(v);
+  }
+
+  function formatCylinderField(el) {
+    const v = parseFloat(el.value) || 0;
+    el.value = fmt2Signed(v);
+  }
+
+  function formatAxisField(el) {
+    const v = parseFloat(el.value) || 0;
+    el.value = fmt3(v);
+  }
+
+  function wireUpEye(els) {
+    const recalc = () => calculateEye(els);
+    [els.aInput, els.bInput, els.cInput].forEach(el => el.addEventListener('input', recalc));
+    els.aInput.addEventListener('blur', () => formatToTwoDecimals(els.aInput));
+    els.bInput.addEventListener('blur', () => formatCylinderField(els.bInput));
+    els.cInput.addEventListener('blur', () => formatAxisField(els.cInput));
+    formatToTwoDecimals(els.aInput);
+    formatCylinderField(els.bInput);
+    formatAxisField(els.cInput);
+    recalc();
+  }
+
+  wireUpEye(getEyeElements(''));
+  wireUpEye(getEyeElements('Os'));
+
+  document.querySelectorAll('.tab-button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetPanelId = btn.getAttribute('aria-controls');
+      document.querySelectorAll('.tab-button').forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const targetPanel = document.getElementById(targetPanelId);
+      if (targetPanel) targetPanel.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
